@@ -34,6 +34,8 @@ public class VariableStore<T extends CoreVariableInstance> {
   protected VariablesProvider<T> variablesProvider;
   protected Map<String, T> variables;
 
+  protected Map<String, T> removedVariables = new HashMap<String, T>();
+
   protected List<VariableStoreObserver<T>> observers;
 
   public VariableStore() {
@@ -66,6 +68,10 @@ public class VariableStore<T extends CoreVariableInstance> {
     return variables;
   }
 
+  public T getRemovedVariable(String name) {
+    return removedVariables.get(name);
+  }
+
   public T getVariable(String name) {
 
     return getVariablesMap().get(name);
@@ -77,7 +83,6 @@ public class VariableStore<T extends CoreVariableInstance> {
 
 
   public void addVariable(T value) {
-
     if (containsKey(value.getName())) {
       throw ProcessEngineLogger.CORE_LOGGER.duplicateVariableInstanceException(value);
     }
@@ -139,12 +144,15 @@ public class VariableStore<T extends CoreVariableInstance> {
       observer.onRemove(value);
     }
 
+    removedVariables.put(variableName, value);
+
     return value;
   }
 
   public void removeVariables() {
     Iterator<T> valuesIt = getVariablesMap().values().iterator();
 
+    removedVariables.putAll(variables);
     while (valuesIt.hasNext()) {
       T nextVariable = valuesIt.next();
 
@@ -175,6 +183,10 @@ public class VariableStore<T extends CoreVariableInstance> {
 
     Collection<T> provideVariables();
 
+  }
+
+  public boolean isRemoved(String variableName) {
+    return removedVariables.containsKey(variableName);
   }
 
 }

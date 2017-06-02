@@ -53,7 +53,6 @@ import org.camunda.bpm.engine.impl.history.event.HistoryEventProcessor;
 import org.camunda.bpm.engine.impl.history.event.HistoryEventTypes;
 import org.camunda.bpm.engine.impl.history.producer.HistoryEventProducer;
 import org.camunda.bpm.engine.impl.interceptor.AtomicOperationInvocation;
-import org.camunda.bpm.engine.impl.interceptor.CommandContext;
 import org.camunda.bpm.engine.impl.jobexecutor.MessageJobDeclaration;
 import org.camunda.bpm.engine.impl.jobexecutor.TimerDeclarationImpl;
 import org.camunda.bpm.engine.impl.persistence.entity.util.FormPropertyStartContext;
@@ -1137,8 +1136,6 @@ public class ExecutionEntity extends PvmExecutionImpl implements Execution, Proc
   }
 
   protected void moveTasksTo(ExecutionEntity other) {
-    CommandContext commandContext = Context.getCommandContext();
-
     // update the related tasks
     for (TaskEntity task : getTasksInternal()) {
       task.setExecution(other);
@@ -1500,7 +1497,7 @@ public class ExecutionEntity extends PvmExecutionImpl implements Execution, Proc
     List<EventSubscriptionEntity> result = new ArrayList<EventSubscriptionEntity>(eventSubscriptions.size());
     for (EventSubscriptionEntity eventSubscriptionEntity : eventSubscriptions) {
       if (eventSubscriptionEntity.isSubscriptionForEventType(EventType.COMPENSATE)) {
-        result.add((EventSubscriptionEntity) eventSubscriptionEntity);
+        result.add(eventSubscriptionEntity);
       }
     }
     return result;
@@ -1512,7 +1509,7 @@ public class ExecutionEntity extends PvmExecutionImpl implements Execution, Proc
     for (EventSubscriptionEntity eventSubscriptionEntity : eventSubscriptions) {
       if (eventSubscriptionEntity.isSubscriptionForEventType(EventType.COMPENSATE)
               && activityId.equals(eventSubscriptionEntity.getActivityId())) {
-          result.add((EventSubscriptionEntity) eventSubscriptionEntity);
+          result.add(eventSubscriptionEntity);
         }
     }
     return result;
